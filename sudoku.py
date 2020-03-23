@@ -57,3 +57,5 @@ def solve():
         return
   print(np.matrix(grid))
   input('More solutions?')
+  
+solve()
