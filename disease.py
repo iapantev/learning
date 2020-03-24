@@ -43,7 +43,7 @@ all_cases = df.Cases.sum()
 #%% Plotting with matplotlib
 plt.close('all')
 
-countries = ['Netherlands','Bulgaria','Switzerland']
+countries = ['Italy','United_Kingdom','China']
 fig,ax = plt.subplots(2,2,sharex=True)
 for country in countries:
   ax[0,0].plot(df['DateRep'][by_country[country]],df['Cases'][by_country[country]],label=country)
@@ -65,3 +65,32 @@ ax[0,0].legend(loc='upper left')
 
 fig.autofmt_xdate()
 plt.tight_layout()
+
+
+#%% Better country indications
+ctry = pd.read_csv("country_list.txt",
+                   sep='\t',
+                   header=None)
+ctry.columns = ['Name','Alpha2','Alpha3','Numeric']
+srs = []
+for i in df.GeoId:
+  what = ctry.Alpha3[ctry.Alpha2.eq(i)].to_string()[-3::]
+  if what!=', )':
+    srs.append(what)
+  else:
+    srs.append(None)
+df['Alpha3']=srs
+# Fix UK and Greece
+df.Alpha3[df.GeoId.eq('UK')] = 'GBR'
+df.Alpha3[df.GeoId.eq('EL')] = 'GRC'
+
+#%% Plot on map
+import plotly.express as px
+import plotly.io as pio
+pio.renderers.default = "browser"
+df2 = px.data.gapminder().query('year==2019')
+df3 = df[df.DateRep.eq(yesterday)] # Dataframe with most recent information
+fig2 = px.scatter_geo(df3, locations="Alpha3", color="Total deaths",
+                      hover_name="Countries and territories", size="Total cases",
+                      projection="natural earth")
+fig2.show()
