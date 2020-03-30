@@ -1,3 +1,4 @@
 # .gitignore
 .spyproject
 *.xlsx
+*.html
